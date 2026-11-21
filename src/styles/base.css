@@ -1,0 +1,41 @@
+:root {
+  color: #121826;
+  background: #f3f4f6;
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --page-bg: #f3f4f6;
+  --panel-bg: transparent;
+  --panel-border: transparent;
+  --field-bg: #ffffff;
+  --field-border: #cfd6de;
+  --field-placeholder: #97a0ab;
+  --ink: #121826;
+  --button-top: #23262b;
+  --button-bottom: #15171a;
+  --button-shadow: rgba(21, 23, 26, 0.22);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  color: #f8fbff;
+  background: #23262b;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--page-bottom);
+}
+
+button,
+textarea {
+  appearance: none;
+  border: 0;
+  border-radius: 0;
+  font: inherit;
+}
