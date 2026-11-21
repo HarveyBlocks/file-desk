@@ -1,41 +1,26 @@
 :root {
-  color: #121826;
-  background: #f3f4f6;
-  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --ink: #27272a;
+  --muted: #71717a;
+  --line: #e4e4e7;
+  --panel: #ffffff;
+  --danger: #b91c1c;
+  --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  --page-bg: #f3f4f6;
-  --panel-bg: transparent;
-  --panel-border: transparent;
-  --field-bg: #ffffff;
-  --field-border: #cfd6de;
-  --field-placeholder: #97a0ab;
-  --ink: #121826;
-  --button-top: #23262b;
-  --button-bottom: #15171a;
-  --button-shadow: rgba(21, 23, 26, 0.22);
+  color: var(--ink);
+  background: #f8f8f9;
+  color-scheme: light;
 }
-
-* {
-  box-sizing: border-box;
-}
-
-::selection {
-  color: #f8fbff;
-  background: #23262b;
-}
-
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  background: var(--page-bottom);
-}
-
-button,
-textarea {
-  appearance: none;
-  border: 0;
-  border-radius: 0;
-  font: inherit;
-}
+* { box-sizing: border-box; }
+body { margin: 0; padding: 36px 40px 48px; min-width: 320px; min-height: 100vh; }
+a { color: inherit; text-decoration: none; }
+button, input, textarea { font: inherit; }
+button:disabled { opacity: .45; cursor: wait; }
+button, a, input, textarea { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2px solid #52525b; outline-offset: 3px; }
+svg { display: block; }
+.muted { color: var(--muted); }
+.error-message { color: var(--danger); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); border: 0; white-space: nowrap; }
+@media (max-width: 760px) { body { padding: 16px 16px 32px; } }
