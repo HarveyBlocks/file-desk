@@ -1,0 +1,16 @@
+node_modules/
+dist/
+data/
+.idea/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+npm-debug.log*
+temp
+.next/
+out/
+*.tsbuildinfo
+output/
+.playwright-cli/

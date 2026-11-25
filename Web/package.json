@@ -1,0 +1,30 @@
+{
+  "name": "file-desk",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --hostname 0.0.0.0 --port 13453",
+    "start": "next start --hostname 0.0.0.0 --port 13453",
+    "build": "next build",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "tsx --test tests/files.test.ts tests/network.test.ts",
+    "test:integration": "tsx --test tests/production.test.ts"
+  },
+  "dependencies": {
+    "next": "16.4.6",
+    "lucide-react": "^0.577.0",
+    "yazl": "^3.3.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/yazl": "^3.3.0",
+    "fflate": "^0.8.2",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  }
+}
