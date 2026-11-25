@@ -1,0 +1,4 @@
+.network-bar { width: min(1120px, 100%); margin: 0 auto 8px; display: flex; align-items: center; gap: 8px; min-height: 32px; color: var(--muted); font-size: 12px; }
+.network-bar > svg { flex-shrink: 0; }
+.network-value { overflow-wrap: anywhere; }
+.network-select { min-width: 0; max-width: 100%; min-height: 32px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); font: inherit; cursor: pointer; }
