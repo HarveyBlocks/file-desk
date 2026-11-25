@@ -62,3 +62,14 @@ dotnet test Desktop.Tests/Desktop.Tests.csproj
 The desktop production host exchanges versioned JSON messages over an authenticated, current-user-only Windows named pipe. Human-readable logs are separate from control messages. A Windows Job Object owns the host and descendants.
 
 File management, HTTP endpoints, restrictions and network-address selection are described in [Web documentation](Web/README.md). The web interface follows [UI guidelines](Web/docs/specification/UI.md). Data and temporary uploads are excluded from version control and build output.
+
+## Git workflow
+
+Use the develop branch for daily work and frequent commits. Its upstream is origin/develop in the GitHub repository. Commit messages use English and Conventional Commits.
+
+```powershell
+git switch develop
+git add <changed-files>
+git commit -m "fix: describe the change"
+git push
+```
