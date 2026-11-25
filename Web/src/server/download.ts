@@ -3,6 +3,7 @@ import type { FileStore } from "./storage";
 import { openFile, passiveType, previewFile } from "./preview";
 import { streamResponse } from "./streamResponse";
 import { requireActive } from "./errors";
+import { taskSignal, updateTask } from "./activity";
 
 /** ASCII fallback plus RFC 5987 preserve Unicode names without header injection. */
 export function contentDisposition(name: string, inline = false): string {
@@ -23,7 +24,8 @@ export function byteRange(header: string, size: number): { start: number; end: n
 
 /** Stream an opened descriptor so cancellation closes the file instead of buffering it. */
 export async function downloadFile(store: FileStore, relative: string, request: Request): Promise<Response> {
-  requireActive(request.signal);
+  const signal = taskSignal(request.signal)!;
+  requireActive(signal);
   const file = await openFile(store, relative);
   try {
     const { size } = await file.stat();
@@ -52,9 +54,16 @@ export async function downloadFile(store: FileStore, relative: string, request: 
     }
     if (range) headers.set("Content-Range", `bytes ${range.start}-${range.end}/${size}`);
     headers.set("Content-Length", String(range ? range.end - range.start + 1 : size));
-    requireActive(request.signal);
+    // Next's automatic HEAD handling discards the body without consuming it.
+    // Close the descriptor here instead of creating an unread source stream.
+    if (request.method === "HEAD") {
+      await file.close();
+      return new Response(null, { status: range ? 206 : 200, headers });
+    }
+    updateTask({ total: range ? range.end - range.start + 1 : size, phase: "Sending" });
+    requireActive(signal);
     const stream = file.createReadStream({ ...(range ?? {}), autoClose: true });
-    return streamResponse(stream, { status: range ? 206 : 200, headers }, request.signal);
+    return streamResponse(stream, { status: range ? 206 : 200, headers }, signal);
   } catch (error) {
     await file.close();
     throw error;

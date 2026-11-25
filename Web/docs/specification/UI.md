@@ -6,7 +6,7 @@ Use English for all interface text, accessible names, tooltips, validation error
 
 ## Layout and navigation
 
-Use a quiet, responsive, light interface with neutral colors, restrained borders and generous whitespace. Keep breadcrumbs and a compact action toolbar above the file list. Sort folders before files and order entries by name. Display dates in UTC+8 (Asia/Shanghai), formatted as `YYYY-MM-DD HH:mm` without a timezone label, consistently across server rendering and browser hydration. API timestamps remain ISO 8601 values.
+Use a quiet, responsive, light interface with restrained borders and generous whitespace. Use color deliberately where it improves recognition. The application mark uses a transparent background, colored outer edges and distinct warm and cool layers. Keep breadcrumbs and a compact action toolbar above the file list. Sort folders before files and order entries by name. Display dates in UTC+8 (Asia/Shanghai), formatted as `YYYY-MM-DD HH:mm` without a timezone label, consistently across server rendering and browser hydration. API timestamps remain ISO 8601 values.
 
 Resource locations belong in `/files/<path>` URLs. Encode each path segment separately. Direct navigation, refresh, breadcrumbs and browser history must identify the same resource. A missing resource offers a route back to its parent.
 

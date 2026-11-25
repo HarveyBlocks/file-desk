@@ -7,6 +7,7 @@ import { contentDisposition } from "./download";
 import { openFile } from "./preview";
 import type { FileStore } from "./storage";
 import { streamResponse } from "./streamResponse";
+import { taskSignal, updateTask, trackTaskSource } from "./activity";
 
 /** Inspect the entire tree before sending headers so unsupported entries fail explicitly. */
 async function collect(store: FileStore, relative: string, signal: AbortSignal): Promise<FileEntry[]> {
@@ -23,10 +24,21 @@ async function collect(store: FileStore, relative: string, signal: AbortSignal):
 
 /** ZIP input is opened lazily: one large tree must not exhaust file descriptors. */
 export async function downloadArchive(store: FileStore, relative: string, request: Request): Promise<Response> {
-  requireActive(request.signal);
+  const signal = taskSignal(request.signal)!;
+  requireActive(signal);
+  updateTask({ phase: "Scanning" });
   await store.paths.directory(relative);
-  const entries = await collect(store, relative, request.signal);
+  const entries = await collect(store, relative, signal);
+  updateTask({ phase: "Archiving" });
   const top = relative ? path.posix.basename(relative) : "data";
+  // HEAD validates the tree but never opens lazy ZIP inputs or creates an
+  // unread archive stream that Next would discard without cancellation.
+  if (request.method === "HEAD") {
+    return new Response(null, { headers: {
+      "Content-Type": "application/zip", "Content-Disposition": contentDisposition(top + ".zip"),
+      "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff",
+    } });
+  }
   const zip = new ZipFile();
   const output = zip.outputStream as Readable;
   const active = new Set<NodeReadable>();
@@ -43,14 +55,15 @@ export async function downloadArchive(store: FileStore, relative: string, reques
     } else {
       zip.addReadStreamLazy(name, { mtime: new Date(entry.modifiedAt) }, callback => {
         void (async () => {
-          requireActive(request.signal);
+          requireActive(signal);
           // Recheck every path when it is opened: a scan is not a filesystem snapshot.
           const file = await openFile(store, entry.path);
-          if (request.signal.aborted || output.destroyed) {
+          if (signal.aborted || output.destroyed) {
             await file.close();
             throw new FileError("CANCELLED", "The download was cancelled.");
           }
           const stream = file.createReadStream({ autoClose: true });
+          trackTaskSource(stream);
           active.add(stream);
           stream.once("close", () => active.delete(stream));
           callback(null, stream);
@@ -62,7 +75,7 @@ export async function downloadArchive(store: FileStore, relative: string, reques
   const response = streamResponse(output, { headers: {
     "Content-Type": "application/zip", "Content-Disposition": contentDisposition(`${top}.zip`),
     "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff",
-  } }, request.signal);
+  } }, signal);
   zip.end();
   return response;
 }

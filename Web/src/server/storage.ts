@@ -1,12 +1,13 @@
 import path from "node:path";
 import { createWriteStream } from "node:fs";
-import { link, lstat, mkdir, mkdtemp, readdir, rm } from "node:fs/promises";
+import { link, lstat, mkdir, mkdtemp, readdir, rm, rmdir, unlink } from "node:fs/promises";
 import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import type { ReadableStream as NodeReadableStream } from "node:stream/web";
 import { childPath, MAX_FILE_BYTES, parentPath, type FileEntry } from "../shared/files";
 import { FileError, requireActive } from "./errors";
 import { DataPaths, validatePath } from "./paths";
+import { taskSignal, updateTask } from "./activity";
 
 /** Filesystem operations accept an injected root so tests never touch real data. */
 export class FileStore {
@@ -43,16 +44,21 @@ export class FileStore {
 
   /** Only the requested child is created; missing parents and collisions are errors. */
   async createDirectory(directory: string, name: string): Promise<FileEntry> {
+    const signal = taskSignal();
+    if (signal) requireActive(signal);
+    updateTask({ path: childPath(directory, name), phase: "Creating" });
     await mkdir(await this.paths.destination(directory, name));
     return this.entry(childPath(directory, name));
   }
 
   /** The stream is bounded by actual bytes, including requests without a length header. */
   async upload(relative: string, body: ReadableStream<Uint8Array> | null, signal?: AbortSignal): Promise<FileEntry> {
+    signal = taskSignal(signal);
     if (signal) requireActive(signal);
     const segments = validatePath(relative);
     if (!segments.length) throw new FileError("INVALID_PATH", "A file name is required.");
     const name = segments.at(-1)!;
+    updateTask({ path: relative });
     const directory = parentPath(relative);
     await this.paths.destination(directory, name);
     await mkdir(this.transferRoot, { recursive: true });
@@ -73,10 +79,12 @@ export class FileStore {
       // A hard link publishes the complete inode atomically and fails if another
       // request won the name. Rename would silently replace files on POSIX.
       // Staging and data must reside on the same filesystem.
+      updateTask({ phase: "Publishing" });
       await link(temporary, destination);
       return await this.entry(relative);
     } finally {
       // Pipeline closes its streams before cleanup, including on client disconnect.
+      updateTask({ phase: "Cleaning up" });
       await rm(staging, { recursive: true, force: true });
     }
   }
@@ -98,7 +106,23 @@ export class FileStore {
     const target = await this.paths.resolve(relative);
     const stat = await lstat(target);
     if (!stat.isFile() && !stat.isDirectory()) throw new FileError("UNSUPPORTED", "This resource type is not supported.");
-    // Recursive rm removes nested links themselves rather than following them.
-    await rm(target, { recursive: stat.isDirectory() });
+    const signal = taskSignal();
+    updateTask({ path: relative, phase: "Deleting", completed: 0, total: null, unit: "entries" });
+    let removed = 0;
+    // Check cancellation between entries. A completed deletion cannot be undone,
+    // and nested links must be unlinked rather than traversed.
+    const removeEntry = async (absolute: string): Promise<void> => {
+      if (signal) requireActive(signal);
+      const entry = await lstat(absolute);
+      if (entry.isDirectory() && !entry.isSymbolicLink()) {
+        for (const name of await readdir(absolute)) await removeEntry(path.join(absolute, name));
+        if (signal) requireActive(signal);
+        await rmdir(absolute);
+      } else {
+        await unlink(absolute);
+      }
+      updateTask({ completed: ++removed });
+    };
+    await removeEntry(target);
   }
 }

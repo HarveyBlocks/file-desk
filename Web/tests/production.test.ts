@@ -32,7 +32,7 @@ test("production HTTP lifecycle and cancellation", { timeout: 120000 }, async t 
   await new Promise<void>(resolve => listener.close(() => resolve()));
   const origin = `http://127.0.0.1:${port}`;
   const server = spawn(process.execPath, [path.resolve("node_modules/next/dist/bin/next"), "start", fixture, "--hostname", "127.0.0.1", "--port", String(port)], {
-    cwd: fixture, windowsHide: true, env: { ...process.env, PORT: String(port), HOSTNAME: "127.0.0.1" },
+    cwd: fixture, windowsHide: true, env: { ...process.env, FILEDESK_ROOT: fixture, PORT: String(port), HOSTNAME: "127.0.0.1" },
     stdio: ["ignore", "pipe", "pipe"],
   });
   let logs = "";
@@ -96,6 +96,10 @@ test("production HTTP lifecycle and cancellation", { timeout: 120000 }, async t 
       assert.match(await inline.text(), /<script>/);
     });
     await t.test("ZIP bytes and empty hierarchy survive the actual HTTP stream", async () => {
+      const head = await request(resourceUrl("/api/archives", directory), { method: "HEAD" });
+      assert.equal(head.status, 200);
+      assert.match(head.headers.get("content-type")!, /application\/zip/);
+      assert.equal((await head.arrayBuffer()).byteLength, 0);
       const response = await request(resourceUrl("/api/archives", directory));
       assert.equal(response.status, 200);
       const archive = unzipSync(new Uint8Array(await response.arrayBuffer()));

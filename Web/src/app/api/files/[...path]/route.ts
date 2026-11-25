@@ -9,6 +9,9 @@ export function GET(request: Request, context: ResourceContext) {
   return respond(async () => downloadFile(files, (await context.params).path.join("/"), request));
 }
 
+/** HEAD shares validation and headers while never allocating a response stream. */
+export const HEAD = GET;
+
 export function PUT(request: Request, context: ResourceContext) {
   return respond(async () => {
     requireSameOrigin(request);

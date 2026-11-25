@@ -1,10 +1,10 @@
 # File Desk
 
-A minimal internal file manager built with Next.js App Router and TypeScript. All managed resources live in `data/`; no database is used. Existing files, including any previous `messages.sqlite`, remain ordinary downloadable files.
+A minimal internal file manager built with Next.js App Router and TypeScript. All managed resources live in the FileDesk project-root `data/`; no database is used. Existing files, including any previous `messages.sqlite`, remain ordinary downloadable files.
 
 ## Run
 
-Use Node.js 22.13 or later and npm. Start commands from the project root.
+Use Node.js 22.13 or later and npm. Start commands from the `Web` directory.
 
 ```sh
 npm ci
@@ -38,7 +38,7 @@ The toolbar provides single-file upload, a new UTF-8 text file, a new folder, an
 
 ## Storage and access
 
-`data/` is created on first access. All application paths derive from the process working directory. Uploads are staged in `temp/transfers` and published using an exclusive hard link, so data and staging must be on the same filesystem with hard-link support (for example, local NTFS or ext4). Failed or cancelled requests clean their staging directories. A process crash can leave an unpublished staging directory; remove abandoned staging only while the server is stopped.
+`data/` is created on first access. All storage paths derive from `FILEDESK_ROOT`, or the parent of the Web working directory for CLI use. The desktop host always passes an explicit absolute root. Uploads are staged in the project-root `temp/transfers` and published using an exclusive hard link, so data and staging must be on the same filesystem with hard-link support (for example, local NTFS or ext4). Failed or cancelled requests clean their staging directories. A process crash can leave an unpublished staging directory; remove abandoned staging only while the server is stopped.
 
 File and ZIP downloads are streamed and stop when cancelled. ZIP is not a snapshot: external edits or deletion during a download can change its contents or interrupt it. Local filesystem access is trusted; the app is not an isolation boundary against another process concurrently replacing filesystem paths.
 
@@ -70,4 +70,4 @@ npm run build
 npm run test:integration
 ```
 
-Tests use isolated OS temporary directories and never use the real data directory. Integration tests require a production build and run `next start` against an isolated copy; they stop that process and remove its files afterward. Dependencies are shared through a filesystem link while all test content and build files stay isolated. Tests cover the real Next.js route boundary, encoded navigation, upload/download, Range, ZIP, same-origin checks, deletion and cancelled transfers. Server modules separate path boundaries, storage, previews and transfer lifecycles; pages and API routes reuse those services. UI conventions are documented in [UI guidelines](docs/specification/UI.md).
+Desktop-host integration tests also cover versioned control, live task progress, backpressure, cancellation and shutdown. Tests use isolated OS temporary directories and never use the real data directory. Integration tests require a production build and run `next start` against an isolated copy; they stop that process and remove its files afterward. Dependencies are shared through a filesystem link while all test content and build files stay isolated. Tests cover the real Next.js route boundary, encoded navigation, upload/download, Range, ZIP, same-origin checks, deletion and cancelled transfers. Server modules separate path boundaries, storage, previews and transfer lifecycles; pages and API routes reuse those services. UI conventions are documented in [UI guidelines](docs/specification/UI.md).
