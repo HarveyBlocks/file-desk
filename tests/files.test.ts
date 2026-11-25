@@ -237,7 +237,7 @@ test("same-origin mutations, JSON validation and structured error responses", as
     assert.throws(() => requireSameOrigin(new Request("http://localhost/api/files/a", { headers: origin ? { Origin: origin } : {} })), FileError);
   }
   requireSameOrigin(new Request("http://localhost/api/files/a", { headers: { Origin: "http://localhost" } }));
-  requireSameOrigin(new Request("http://0.0.0.0:8100/api/files/a", { headers: { Host: "files.internal:8100", Origin: "http://files.internal:8100" } }));
+  requireSameOrigin(new Request("http://0.0.0.0:13453/api/files/a", { headers: { Host: "files.internal:13453", Origin: "http://files.internal:13453" } }));
   const request = (body: string, type = "application/json") => new Request("http://localhost/api/text-files", { method: "POST", headers: { "Content-Type": type }, body });
   assert.deepEqual(await readJson(request('{"name":"file"}')), { name: "file" });
   for (const content of ["null", "[]", "{"]) await assert.rejects(readJson(request(content)), FileError);

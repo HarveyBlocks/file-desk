@@ -1,4 +1,4 @@
-# Files
+# File Desk
 
 A minimal internal file manager built with Next.js App Router and TypeScript. All managed resources live in `data/`; no database is used. Existing files, including any previous `messages.sqlite`, remain ordinary downloadable files.
 
@@ -11,7 +11,7 @@ npm ci
 npm run dev
 ```
 
-Open `http://localhost:8100`. The server listens on `0.0.0.0:8100`.
+Open `http://localhost:13453/files`. The development and production servers listen on `0.0.0.0:13453`.
 
 For production:
 
@@ -26,6 +26,7 @@ Persist the data directory separately from application dependencies and build ou
 
 The toolbar provides single-file upload, a new UTF-8 text file, a new folder, and a ZIP download of the current folder. Rows provide download and delete actions. Hover over an icon to see its action.
 
+- On Windows, the page shows a server LAN address and its network name when available. Qualified addresses must belong to an active physical Ethernet or Wi-Fi adapter and use a usable private IPv4 address. Manually configured addresses rank before DHCP addresses, then default-route availability and the combined route/interface metric decide. Multiple candidates appear in a local selector. Changing the selection sends no request, and resource navigation preserves it. A full reload probes again and restores the recommended address. Probing is limited to eight seconds and requires access to Windows networking queries. Other platforms, denied or failed probes, and hosts without candidates show 'LAN address unavailable'; file operations remain available.
 - Open a folder or file to navigate to its shareable `/files/<path>` URL. Refresh and browser history preserve the resource location.
 - Files are limited to 100 MiB. Uploads preserve original bytes. New text preserves whitespace and uses LF line endings; empty files are allowed.
 - Names must be single path components valid on Windows and POSIX. Existing names are never overwritten or automatically renamed.

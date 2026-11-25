@@ -6,7 +6,7 @@ import { resourceUrl } from "@/shared/files";
 export function Breadcrumbs({ path }: { path: string }) {
   const segments = path ? path.split("/") : [];
   return <nav className="breadcrumbs" aria-label="Breadcrumb">
-    <Link href="/files" className="root-link" title="Data root" aria-label="Data root"><HardDrive size={19} /><span>Files</span></Link>
+    <Link href="/files" className="root-link" title="Data root"><HardDrive size={19} aria-hidden="true" /><span>File Desk</span></Link>
     {segments.map((segment, index) => <span className="crumb" key={index}>
       <ChevronRight size={14} aria-hidden="true" />
       {index === segments.length - 1 ? <span aria-current="page">{segment}</span> :

@@ -10,6 +10,8 @@ Use a quiet, responsive, light interface with neutral colors, restrained borders
 
 Resource locations belong in `/files/<path>` URLs. Encode each path segment separately. Direct navigation, refresh, breadcrumbs and browser history must identify the same resource. A missing resource offers a route back to its parent.
 
+Show one server LAN address above the shared resource area, with its matching network name when available. Use a native select only when multiple qualified candidates exist. Excluded addresses must never appear. Selection changes are local and send no request. Keep the choice during resource navigation and restore the recommendation on a full reload. Use the English accessible name and tooltip "Server LAN address". Show "LAN address unavailable" when discovery cannot provide a candidate.
+
 ## Icons and accessibility
 
 Use `lucide-react` for icons. Do not draw custom SVG icons. Icon actions need an English accessible name, a tooltip and a visible keyboard focus state. Do not rely on icon shape or color alone to communicate a destructive action or failure.
